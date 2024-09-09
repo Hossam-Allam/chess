@@ -71,7 +71,7 @@ class Board
         end
       end
       puts
-      row.each_with_index do |cell, j|
+      row.each_with_index do |_cell, j|
         if (i + j).even?
           print "\e[41m    \e[0m"  # Red background
         else
@@ -84,10 +84,12 @@ class Board
 
   def move_piece(move = "61 41") # rubocop:disable Metrics/AbcSize
     coordinates = parse_coordinates(move)
-    return unless @board[coordinates[0][0]][coordinates[0][1]].move(move)
+    unless @board[coordinates[0][0]][coordinates[0][1]].nil? || @board[coordinates[0][0]][coordinates[0][1]].move(move)
+      return
+    end
 
     @board[coordinates[1][0]][coordinates[1][1]] = @board[coordinates[0][0]][coordinates[0][1]]
-    @board[coordinates[0][0]][coordinates[0][1]] = " "
+    @board[coordinates[0][0]][coordinates[0][1]] = nil
     display
   end
 end
