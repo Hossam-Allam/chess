@@ -27,6 +27,7 @@ class Bishop # rubocop:disable Style/Documentation
   def path_clear?(start_pos, end_pos, board)
     start_row, start_col = start_pos
     end_row, end_col = end_pos
+    return false if end_row < 0 || end_row > 7 || end_col < 0 || end_col > 7
 
     # determining the direction
     row_step = end_row > start_row ? 1 : -1
