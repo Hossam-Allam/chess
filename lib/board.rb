@@ -1,6 +1,6 @@
-require_relative "pawn"
+require_relative "pieces/pawn"
 require_relative "escape_sequences"
-require_relative "rook"
+require_relative "pieces/rook"
 # Board class that is responsible for populating and printing the board
 class Board
   include EscapeSequences
