@@ -2,6 +2,8 @@ require_relative "pieces/pawn"
 require_relative "escape_sequences"
 require_relative "pieces/rook"
 require_relative "pieces/knight"
+require_relative "pieces/bishop"
+require_relative "pieces/king"
 # Board class that is responsible for populating and printing the board
 class Board
   include EscapeSequences
@@ -13,6 +15,8 @@ class Board
     place_pawns
     place_rooks
     place_knights
+    place_bishops
+    place_kings
   end
 
   def place_pawns
@@ -34,6 +38,19 @@ class Board
 
     @board[7][1] = Knight.new("black").symbol
     @board[7][6] = Knight.new("black").symbol
+  end
+
+  def place_bishops
+    @board[0][2] = Bishop.new("white").symbol
+    @board[0][5] = Bishop.new("white").symbol
+
+    @board[7][2] = Bishop.new("black").symbol
+    @board[7][5] = Bishop.new("black").symbol
+  end
+
+  def place_kings
+    @board[0][4] = King.new("white").symbol
+    @board[7][4] = King.new("black").symbol
   end
 
   def display # rubocop:disable Metrics/MethodLength
