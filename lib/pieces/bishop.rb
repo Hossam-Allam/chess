@@ -2,6 +2,6 @@ class Bishop
   attr_reader :symbol
 
   def initialize(color)
-    @symbol = color == "black" ? "♝" : "♗"
+    @symbol = color == "black" ? "♗" : "♝"
   end
 end
