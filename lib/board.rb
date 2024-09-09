@@ -10,10 +10,11 @@ class Board
   include EscapeSequences
   include MoveMapper
 
-  attr_accessor :board
+  attr_accessor :board, :turn
 
   def initialize
     @board = Array.new(8) { Array.new(8, nil) }
+    @turn = 0
     place_pawns
     place_rooks
     place_knights
@@ -82,13 +83,24 @@ class Board
     end
   end
 
-  def move_piece(move = "61 41") # rubocop:disable Metrics/AbcSize
+  def whose_turn
+    turn.even? ? "white" : "black"
+  end
+
+  def move_piece(move) # rubocop:disable Metrics/AbcSize
     coordinates = parse_coordinates(move)
-    unless @board[coordinates[0][0]][coordinates[0][1]].nil? || @board[coordinates[0][0]][coordinates[0][1]].move(move)
-      return
+    color = whose_turn
+
+    # Check if the selected piece belongs to the current player and can move
+    piece = @board[coordinates[0][0]][coordinates[0][1]]
+
+    # Check if the piece is nil, if the color doesn't match, or if the move is invalid
+    if piece.nil? || piece.color != color || !piece.move(move)
+      return # Invalid move, don't proceed
     end
 
-    @board[coordinates[1][0]][coordinates[1][1]] = @board[coordinates[0][0]][coordinates[0][1]]
+    # Move the piece if everything is valid
+    @board[coordinates[1][0]][coordinates[1][1]] = piece
     @board[coordinates[0][0]][coordinates[0][1]] = nil
     display
   end
