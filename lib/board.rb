@@ -91,17 +91,18 @@ class Board
     coordinates = parse_coordinates(move)
     color = whose_turn
 
-    # Check if the selected piece belongs to the current player and can move
     piece = @board[coordinates[0][0]][coordinates[0][1]]
 
     # Check if the piece is nil, if the color doesn't match, or if the move is invalid
-    if piece.nil? || piece.color != color || !piece.move(move)
-      return # Invalid move, don't proceed
+    if piece.nil? || piece.color != color || !piece.move(move, @board)
+      puts "Invalid move"
+      return
     end
 
     # Move the piece if everything is valid
     @board[coordinates[1][0]][coordinates[1][1]] = piece
     @board[coordinates[0][0]][coordinates[0][1]] = nil
+    @turn += 1
     display
   end
 end
