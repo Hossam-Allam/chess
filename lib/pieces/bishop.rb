@@ -11,6 +11,8 @@ class Bishop # rubocop:disable Style/Documentation
 
   def move(coordinates, board)
     start, destination = parse_coordinates(coordinates)
+    return false if board[destination[0]][destination[1]] != nil && board[destination[0]][destination[1]].color == color # rubocop:disable Style/NonNilCheck
+
     start_row, start_col = start
     end_row, end_col = destination
 
