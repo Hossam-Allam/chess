@@ -11,6 +11,7 @@ class Knight
 
   def move(coordinates, _board)
     start, destination = parse_coordinates(coordinates)
+    return false if !board[destination[0]][destination[1]].nil? && board[destination[0]][destination[1]].color == color
 
     possible_moves = filter_valid_moves(knight_moves(start))
 
