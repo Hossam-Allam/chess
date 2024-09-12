@@ -10,17 +10,20 @@ class Board
   include EscapeSequences
   include MoveMapper
 
-  attr_accessor :board, :turn
+  attr_accessor :board, :turn, :white_king, :black_king, :is_check
 
   def initialize
     @board = Array.new(8) { Array.new(8, nil) }
     @turn = 0
+    @is_check = false
     place_pawns
     place_rooks
     place_knights
     place_bishops
     place_kings
     place_queens
+    @white_king = @board[7][4]
+    @black_king = @board[0][4]
   end
 
   def place_pawns
@@ -60,7 +63,7 @@ class Board
   end
 
   def display
-    hide_cursor
+    # hide_cursor
     puts_clear
     @board.each_with_index do |row, i|
       row.each_with_index do |cell, j|
@@ -87,21 +90,50 @@ class Board
     turn.even? ? "white" : "black"
   end
 
-  def move_piece(move) # rubocop:disable Metrics/AbcSize
+  def move_piece(move) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     coordinates = parse_coordinates(move)
     color = whose_turn
-
     piece = @board[coordinates[0][0]][coordinates[0][1]]
-
+    if color == "white"
+      my_king = @white_king
+      other_king = @black_king
+    else
+      my_king = @black_king
+      other_king = @white_king
+    end
     # Check if the piece is nil, if the color doesn't match, or if the move is invalid
     if piece.nil? || piece.color != color || !piece.move(move, @board)
       puts "Invalid move"
       return
     end
 
-    # Move the piece if everything is valid
+    original_piece = @board[coordinates[1][0]][coordinates[1][1]] # Save piece at destination (if any)
     @board[coordinates[1][0]][coordinates[1][1]] = piece
     @board[coordinates[0][0]][coordinates[0][1]] = nil
+
+    # Check if this move puts the current player's king in check
+    if my_king.check?(@board)
+      # If the move puts own king in check, revert the move
+      @board[coordinates[0][0]] = piece
+      @board[coordinates[1][0]][coordinates[1][1]] = original_piece
+      puts "Move puts your own king in check. Invalid move."
+      return
+    end
+
+    # Move the piece if everything is valid
+    @board[coordinates[1][0]][coordinates[1][1]] = piece
+    potential_king = @board[coordinates[1][0]][coordinates[1][1]]
+    if potential_king.instance_of?(King)
+      potential_king.color == "white" ? @white_king = potential_king : @black_king = potential_king
+    end
+
+    if other_king.check?(@board)
+      @is_check = true
+      puts "#{color} put the opponent's king in check!"
+    else
+      @is_check = false
+    end
+
     @turn += 1
     display
   end
