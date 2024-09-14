@@ -3,10 +3,12 @@ require_relative "pawn"
 class King
   include MoveMapper
   attr_reader :symbol, :color
+  attr_accessor :location
 
   def initialize(color)
     @color = color
     @symbol = color == "black" ? "♔" : "♚"
+    @location = color == "black" ? [0, 4] : [7, 4]
   end
 
   def move(coordinates, board)
@@ -20,6 +22,10 @@ class King
     end
   end
 
+  def check?(board = nil)
+    false
+  end
+
   private
 
   def valid_king_move?(start, destination)
@@ -29,7 +35,7 @@ class King
     row_diff <= 1 && col_diff <= 1 # King moves one square in any direction
   end
 
-  def path_clear?(start, destination, board)
+  def path_clear?(_start, destination, board)
     board[destination[0]][destination[1]].nil? || board[destination[0]][destination[1]].color != color
   end
 end

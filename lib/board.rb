@@ -124,9 +124,16 @@ class Board
     @board[coordinates[1][0]][coordinates[1][1]] = piece
     potential_king = @board[coordinates[1][0]][coordinates[1][1]]
     if potential_king.instance_of?(King)
-      potential_king.color == "white" ? @white_king = potential_king : @black_king = potential_king
+      if potential_king.color == "white"
+        @white_king = potential_king
+        @white_king.location = [coordinates[1][0], coordinates[1][1]]
+      else
+        @black_king = potential_king
+        @black_king.location = [coordinates[1][0], coordinates[1][1]]
+      end
     end
-
+    p @black_king.location
+    p @white_king.location
     if other_king.check?(@board)
       @is_check = true
       puts "#{color} put the opponent's king in check!"
