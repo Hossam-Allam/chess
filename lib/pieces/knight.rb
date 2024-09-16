@@ -13,14 +13,14 @@ class Knight
     start, destination = parse_coordinates(coordinates)
     return false if !board[destination[0]][destination[1]].nil? && board[destination[0]][destination[1]].color == color
 
-    possible_moves = filter_valid_moves(knight_moves(start))
+    all_possible_moves = possible_moves(start)
 
-    possible_moves.include?(destination)
+    all_possible_moves.include?(destination)
   end
 
   private
 
-  def knight_moves(position)
+  def possible_moves(position)
     moves = [
       [2, 1], [2, -1], [-2, 1], [-2, -1],
       [1, 2], [1, -2], [-1, 2], [-1, -2]
@@ -28,9 +28,11 @@ class Knight
 
     x, y = position
 
-    moves.map do |dx, dy|
+    possible = moves.map do |dx, dy|
       [x + dx, y + dy]
     end
+
+    filter_valid_moves(possible)
   end
 
   def filter_valid_moves(moves)
