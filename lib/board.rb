@@ -90,7 +90,7 @@ class Board
     turn.even? ? "white" : "black"
   end
 
-  def move_piece(move) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+  def move_piece(move) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     coordinates = parse_coordinates(move)
     color = whose_turn
     piece = @board[coordinates[0][0]][coordinates[0][1]]
@@ -114,7 +114,7 @@ class Board
     # Check if this move puts the current player's king in check
     if my_king.check?(@board)
       # If the move puts own king in check, revert the move
-      @board[coordinates[0][0]] = piece
+      @board[coordinates[0][0]][coordinates[0][1]] = piece
       @board[coordinates[1][0]][coordinates[1][1]] = original_piece
       puts "Move puts your own king in check. Invalid move."
       return
