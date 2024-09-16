@@ -15,29 +15,47 @@ class Pawn
     @first_move = true
   end
 
-  def move(coordinates, board = nil)
+  def move(coordinates, board)
     start, pre_final = coordinates.split
     final = pre_final.chars
     final.map!(&:to_i)
     return false if !board[final[0]][final[1]].nil? && board[final[0]][final[1]].color == color
 
-    moves = valid_moves(start)
+    moves = valid_moves(start, board)
     moves.include?(final)
+  end
+
+  def possible_moves(start_pos, board)
+    moves = []
+    moves.concat(valid_moves(start_pos, board))
+    moves
   end
 
   private
 
-  def valid_moves(coordinate) # rubocop:disable Metrics/AbcSize
-    if @color == "black" && first_move
-      @first_move = false
-      [[coordinate[0].to_i + 1, coordinate[1].to_i], [coordinate[0].to_i + 2, coordinate[1].to_i]]
-    elsif @color == "black"
-      [[coordinate[0].to_i + 1, coordinate[1].to_i]]
-    elsif @color != "black" && first_move
-      @first_move = false
-      [[coordinate[0].to_i - 1, coordinate[1].to_i], [coordinate[0].to_i - 2, coordinate[1].to_i]]
-    else
-      [[coordinate[0].to_i - 1, coordinate[1].to_i]]
+  def valid_moves(coordinate, board)
+    row, col = coordinate.chars.map(&:to_i)
+    moves = []
+
+    direction = color == "black" ? 1 : -1
+
+    # Normal move (one square forward)
+    moves << [row + direction, col] if board[row + direction][col].nil?
+
+    # First move (can move two squares forward if path is clear)
+    if first_move && board[row + direction][col].nil? && board[row + (direction * 2)][col].nil?
+      moves << [row + (direction * 2), col]
     end
+
+    # Diagonal captures (can only capture opponent's pieces)
+    [-1, 1].each do |diagonal|
+      new_col = col + diagonal
+      next unless new_col.between?(0, 7)
+
+      piece = board[row + direction][new_col]
+      moves << [row + direction, new_col] if piece && piece.color != color
+    end
+
+    moves
   end
 end
