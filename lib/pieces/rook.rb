@@ -22,6 +22,12 @@ class Rook
     end
   end
 
+  def possible_moves(start_pos, board)
+    moves = []
+    moves.concat(horizontal_vertical_moves(start_pos, board))
+    moves
+  end
+
   private
 
   def row_move_verifier(start, destination, board)
@@ -56,5 +62,36 @@ class Rook
     end
 
     true
+  end
+
+  def horizontal_vertical_moves(start_pos, board)
+    start_row, start_col = start_pos
+    moves = []
+
+    # Directions: up, down, left, right
+    directions = [[-1, 0], [1, 0], [0, -1], [0, 1]]
+
+    directions.each do |row_step, col_step|
+      current_row = start_row + row_step
+      current_col = start_col + col_step
+
+      while current_row.between?(0, 7) && current_col.between?(0, 7)
+        piece = board[current_row][current_col]
+
+        if piece.nil?
+          moves << [current_row, current_col]
+        elsif piece.color != color
+          moves << [current_row, current_col] # Can capture opponent's piece
+          break
+        else
+          break # Blocked by own piece
+        end
+
+        current_row += row_step
+        current_col += col_step
+      end
+    end
+
+    moves
   end
 end
