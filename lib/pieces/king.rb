@@ -44,9 +44,18 @@ class King
     board[destination[0]][destination[1]].nil? || board[destination[0]][destination[1]].color != color
   end
 
+  def find_king_location(board)
+    board.each_with_index do |row, row_index|
+      row.each_with_index do |piece, col_index|
+        return [row_index, col_index] if piece.is_a?(King) && piece.color == color
+      end
+    end
+    nil
+  end
+
   def check_vertical(board)
     # Check up and down from the king's current position
-    row, col = location
+    row, col = find_king_location(board)
 
     [-1, 1].each do |row_step|
       new_row = row + row_step
@@ -66,7 +75,7 @@ class King
 
   def check_horizontal(board)
     # Check left and right from the king's current position
-    row, col = location
+    row, col = find_king_location(board)
 
     [-1, 1].each do |col_step|
       new_col = col + col_step
@@ -86,7 +95,7 @@ class King
 
   def check_diagonals(board) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength
     # Check diagonally from the king's current position
-    row, col = location
+    row, col = find_king_location(board)
 
     [[-1, -1], [-1, 1], [1, -1], [1, 1]].each do |row_step, col_step|
       new_row = row + row_step
@@ -108,7 +117,7 @@ class King
 
   def check_knights(board)
     # Check the knight's movement range from the king's current position
-    row, col = location
+    row, col = find_king_location(board)
 
     knight_moves = [[-2, -1], [-2, 1], [2, -1], [2, 1], [-1, -2], [-1, 2], [1, -2], [1, 2]]
     knight_moves.each do |row_step, col_step|
