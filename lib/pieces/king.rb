@@ -27,8 +27,23 @@ class King
     return true if check_horizontal(board)
     return true if check_diagonals(board)
     return true if check_knights(board)
+    return true if check_pawns(board)
 
     false
+  end
+
+  def checkmate?(board)
+    # 1. Check if the king can escape by moving to any adjacent square
+    puts "entered method"
+    return false if king_can_escape?(board)
+
+    puts "first return"
+    # 2. Check if any other piece can block the check or capture the attacking piece
+    return false if block_or_capture_possible?(board)
+
+    puts "second return"
+    # If neither the king can escape nor another piece can block the check, it's checkmate
+    true
   end
 
   private
@@ -61,10 +76,15 @@ class King
       new_row = row + row_step
       while new_row.between?(0, 7)
         piece = board[new_row][col]
-        return false if piece && piece.color == color # Blocked by own piece
+
         if piece
+
+          break if piece.color == color
+
           # Check if the piece can attack vertically (i.e., a rook or queen)
-          return piece.is_a?(Rook) || piece.is_a?(Queen)
+          break unless piece.is_a?(Rook) || piece.is_a?(Queen)
+
+          return true
         end
 
         new_row += row_step
@@ -81,10 +101,15 @@ class King
       new_col = col + col_step
       while new_col.between?(0, 7)
         piece = board[row][new_col]
-        return false if piece && piece.color == color # Blocked by own piece
+
         if piece
+
+          break if piece.color == color
+
           # Check if the piece can attack horizontally (i.e., a rook or queen)
-          return piece.is_a?(Rook) || piece.is_a?(Queen)
+          break unless piece.is_a?(Rook) || piece.is_a?(Queen)
+
+          return true
         end
 
         new_col += col_step
@@ -93,25 +118,34 @@ class King
     false
   end
 
-  def check_diagonals(board) # rubocop:disable Metrics/CyclomaticComplexity,Metrics/MethodLength
-    # Check diagonally from the king's current position
+  def check_diagonals(board)
     row, col = find_king_location(board)
 
+    # Iterate over all diagonal directions
     [[-1, -1], [-1, 1], [1, -1], [1, 1]].each do |row_step, col_step|
       new_row = row + row_step
       new_col = col + col_step
+
+      # Check each square along the diagonal
       while new_row.between?(0, 7) && new_col.between?(0, 7)
         piece = board[new_row][new_col]
-        return false if piece && piece.color == color # Blocked by own piece
+
         if piece
-          # Check if the piece can attack diagonally (i.e., a bishop or queen)
-          return piece.is_a?(Bishop) || piece.is_a?(Queen)
+
+          # Blocked by own piece
+          break if piece.color == color
+
+          break unless piece.is_a?(Bishop) || piece.is_a?(Queen)
+
+          return true
+
         end
 
         new_row += row_step
         new_col += col_step
       end
     end
+
     false
   end
 
@@ -130,5 +164,106 @@ class King
       return true if piece && piece.is_a?(Knight) && piece.color != color
     end
     false
+  end
+
+  def check_pawns(board)
+    # Find the king's current position
+    row, col = find_king_location(board)
+
+    # Define pawn attack directions based on the color of the king
+    pawn_moves = color == :white ? [[-1, -1], [-1, 1]] : [[1, -1], [1, 1]]
+
+    # Check if an opponent's pawn is threatening the king
+    pawn_moves.each do |row_step, col_step|
+      new_row = row + row_step
+      new_col = col + col_step
+
+      next unless new_row.between?(0, 7) && new_col.between?(0, 7)
+
+      piece = board[new_row][new_col]
+
+      # Check if the piece is an opponent's pawn
+      return true if piece && piece.is_a?(Pawn) && piece.color != color
+    end
+
+    false
+  end
+
+  def king_can_escape?(board)
+    row, col = find_king_location(board)
+
+    # Possible directions the king can move
+    moves = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+
+    moves.each do |row_step, col_step|
+      new_row = row + row_step
+      new_col = col + col_step
+      next unless new_row.between?(0, 7) && new_col.between?(0, 7) # Move must stay on the board
+
+      # Simulate moving the king to the new location
+      if safe_move?(new_row, new_col, board)
+        return true # King can escape to this square
+      end
+    end
+    false
+  end
+
+  def safe_move?(new_row, new_col, board)
+    king_location = find_king_location(board) # Store the king's current location
+    # return false unless king_location # Return false if the king is not found
+
+    original_piece = board[new_row][new_col]
+    unless original_piece.nil? || original_piece.color == color
+      board[new_row][new_col] = board[king_location[0]][king_location[1]] # Move king to the new location
+      board[king_location[0]][king_location[1]] = nil # Clear old king position
+
+      safe = !check?(board) # Check if the new position is safe (not in check)
+
+      # Undo the move (restore the board state)
+      board[king_location[0]][king_location[1]] = board[new_row][new_col] # Restore the king to its original position
+      board[new_row][new_col] = original_piece # Restore the original piece in the new position
+    end
+    safe
+  end
+
+  def block_or_capture_possible?(board)
+    player_pieces = find_pieces_of_color(color, board) # Find all pieces of the king's color
+
+    player_pieces.each do |piece, row, col|
+      next if piece.is_a?(King)
+
+      possible_moves = piece.possible_moves([row, col], board)
+
+      possible_moves.each do |move|
+        if safe_after_move?(piece, row, col, move, board)
+          return true # A piece can block or capture the attacking piece
+        end
+      end
+    end
+    false
+  end
+
+  def safe_after_move?(piece, start_row, start_col, destination, board)
+    original_piece = board[destination[0]][destination[1]]
+    board[destination[0]][destination[1]] = piece
+    board[start_row][start_col] = nil
+
+    safe = !check?(board) # Check if the king is still in check after the move
+
+    # Undo the move (restore the board state)
+    board[start_row][start_col] = piece
+    board[destination[0]][destination[1]] = original_piece
+
+    safe
+  end
+
+  def find_pieces_of_color(color, board)
+    pieces = []
+    board.each_with_index do |row, row_idx|
+      row.each_with_index do |piece, col_idx|
+        pieces << [piece, row_idx, col_idx] if piece && piece.color == color
+      end
+    end
+    pieces
   end
 end
