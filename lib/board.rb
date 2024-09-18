@@ -10,12 +10,13 @@ class Board
   include EscapeSequences
   include MoveMapper
 
-  attr_accessor :board, :turn, :white_king, :black_king, :is_check
+  attr_accessor :board, :turn, :white_king, :black_king, :is_check, :winner
 
   def initialize
     @board = Array.new(8) { Array.new(8, nil) }
     @turn = 0
     @is_check = false
+    @winner = nil
     place_pawns
     place_rooks
     place_knights
@@ -132,11 +133,16 @@ class Board
         @black_king.location = [coordinates[1][0], coordinates[1][1]]
       end
     end
-    p @black_king.location
-    p @white_king.location
+
     if other_king.check?(@board)
       @is_check = true
-      puts "#{color} put the opponent's king in check!"
+      if other_king.checkmate?(@board)
+        puts "#{color} checkmates the opponent's king"
+        @winner = color
+      else
+        puts "#{color} put the opponent's king in check!"
+      end
+
     else
       @is_check = false
     end

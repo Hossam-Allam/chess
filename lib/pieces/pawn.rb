@@ -16,7 +16,9 @@ class Pawn
   end
 
   def move(coordinates, board)
-    start, pre_final = coordinates.split
+    pre_start, pre_final = coordinates.split
+    start = pre_start.chars
+    start.map!(&:to_i)
     final = pre_final.chars
     final.map!(&:to_i)
     return false if !board[final[0]][final[1]].nil? && board[final[0]][final[1]].color == color
@@ -34,7 +36,7 @@ class Pawn
   private
 
   def valid_moves(coordinate, board)
-    row, col = coordinate.chars.map(&:to_i)
+    row, col = coordinate
     moves = []
 
     direction = color == "black" ? 1 : -1

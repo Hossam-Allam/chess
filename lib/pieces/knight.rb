@@ -9,18 +9,16 @@ class Knight
     @symbol = color == "black" ? "♘" : "♞"
   end
 
-  def move(coordinates, _board)
+  def move(coordinates, board)
     start, destination = parse_coordinates(coordinates)
     return false if !board[destination[0]][destination[1]].nil? && board[destination[0]][destination[1]].color == color
 
-    all_possible_moves = possible_moves(start)
+    all_possible_moves = possible_moves(start, 2)
 
     all_possible_moves.include?(destination)
   end
 
-  private
-
-  def possible_moves(position)
+  def possible_moves(position, _board)
     moves = [
       [2, 1], [2, -1], [-2, 1], [-2, -1],
       [1, 2], [1, -2], [-1, 2], [-1, -2]
@@ -34,6 +32,8 @@ class Knight
 
     filter_valid_moves(possible)
   end
+
+  private
 
   def filter_valid_moves(moves)
     valid_range = (0..7)

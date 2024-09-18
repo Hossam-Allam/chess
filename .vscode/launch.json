@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "rdbg",
+            "name": "Debug main.rb with rdbg",
+            "request": "launch",
+            "script": "${workspaceFolder}/main.rb",
+            "args": [],
+            "useBundler": true, // Run with bundler if you have gems set up
+            "stopOnEntry": true, // Stop at the first line of main.rb
+            "askParameters": false // Ensures it doesn't prompt for parameters
+        },
+        {
+            "type": "rdbg",
+            "name": "Attach with rdbg",
+            "request": "attach"
+        }
+    ]
+}
