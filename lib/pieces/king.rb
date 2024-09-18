@@ -34,14 +34,12 @@ class King
 
   def checkmate?(board)
     # 1. Check if the king can escape by moving to any adjacent square
-    puts "entered method"
+
     return false if king_can_escape?(board)
 
-    puts "first return"
     # 2. Check if any other piece can block the check or capture the attacking piece
     return false if block_or_capture_possible?(board)
 
-    puts "second return"
     # If neither the king can escape nor another piece can block the check, it's checkmate
     true
   end
