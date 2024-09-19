@@ -66,7 +66,10 @@ class Board
   def display
     # hide_cursor
     puts_clear
+    column_labels = "   0   1   2   3   4   5   6   7" # Column labels
+
     @board.each_with_index do |row, i|
+      print "#{i} " # Print the row number on the left side
       row.each_with_index do |cell, j|
         piece_symbol = cell.nil? ? " " : cell.symbol # Use symbol from object or default
         if (i + j).even?
@@ -76,6 +79,7 @@ class Board
         end
       end
       puts
+      print "  " # Offset for row coloring
       row.each_with_index do |_cell, j|
         if (i + j).even?
           print "\e[41m    \e[0m"  # Red background
@@ -85,6 +89,8 @@ class Board
       end
       puts
     end
+
+    puts column_labels # Print the bottom row of column numbers
   end
 
   def whose_turn
