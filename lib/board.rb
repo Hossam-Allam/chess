@@ -5,7 +5,7 @@ require_relative "pieces/knight"
 require_relative "pieces/bishop"
 require_relative "pieces/king"
 require_relative "pieces/queen"
-# Board class that is responsible for populating and printing the board
+# Board class that is responsible for keeping track of the board, it is the engine of this chess game
 class Board
   include EscapeSequences
   include MoveMapper
@@ -143,6 +143,8 @@ class Board
         puts "#{color} put the opponent's king in check!"
       end
 
+    elsif other_king.tie?(@board)
+      @winner = "tie"
     else
       @is_check = false
     end
