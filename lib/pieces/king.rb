@@ -58,16 +58,38 @@ class King
     player_pieces = find_pieces_of_color(color, board)
 
     player_pieces.each do |piece, row, col|
+      next if piece.is_a?(King)
+
       possible_moves = piece.possible_moves([row, col], board)
       possible_moves.each do |move|
         move_coordinates = "#{row}#{col} #{move.join}" # The move method expects a string
 
-        if piece.move(move_coordinates, board)
+        if piece.move(move_coordinates, board) && !is_piece_pinned?(move_coordinates, board)
           return true # If any valid move is found, return true
         end
       end
     end
     false # If no valid move is found, return false
+  end
+
+  def is_piece_pinned?(move, board)
+    raise "Board is nil" if board.nil? # Early error detection for a nil board
+
+    coordinates = parse_coordinates(move)
+    piece = board[coordinates[0][0]][coordinates[0][1]]
+    original_piece = board[coordinates[1][0]][coordinates[1][1]] # Save piece at destination (if any)
+
+    # Simulate the move
+    board[coordinates[1][0]][coordinates[1][1]] = piece
+    board[coordinates[0][0]][coordinates[0][1]] = nil
+
+    king_is_in_check = check?(board) # Assuming check? checks if the king of 'color' is in check
+
+    # Revert the move
+    board[coordinates[0][0]][coordinates[0][1]] = piece
+    board[coordinates[1][0]][coordinates[1][1]] = original_piece
+
+    king_is_in_check # Return true if the move results in a check (piece is pinned)
   end
 
   def king_can_move?(board)
