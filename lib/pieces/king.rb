@@ -1,5 +1,5 @@
 require_relative "pawn"
-# I'm just fulfilling rubocop expectations tbh
+# King class, responsible for checking check, checkmate, and tie situations (along with king movement)
 class King
   include MoveMapper
   attr_reader :symbol, :color
@@ -44,7 +44,46 @@ class King
     true
   end
 
+  def tie?(board)
+    return false if check?(board)
+    return false if any_piece_can_move?(board)
+    return false if king_can_move?(board)
+
+    true
+  end
+
   private
+
+  def any_piece_can_move?(board) # rubocop:disable Metrics/MethodLength
+    player_pieces = find_pieces_of_color(color, board)
+
+    player_pieces.each do |piece, row, col|
+      possible_moves = piece.possible_moves([row, col], board)
+      possible_moves.each do |move|
+        move_coordinates = "#{row}#{col} #{move.join}" # The move method expects a string
+
+        if piece.move(move_coordinates, board)
+          return true # If any valid move is found, return true
+        end
+      end
+    end
+    false # If no valid move is found, return false
+  end
+
+  def king_can_move?(board)
+    row, col = find_king_location(board)
+    possible_moves = [[-1, -1], [-1, 0], [-1, 1], [0, -1], [0, 1], [1, -1], [1, 0], [1, 1]]
+
+    possible_moves.each do |row_step, col_step|
+      new_row = row + row_step
+      new_col = col + col_step
+      next unless new_row.between?(0, 7) && new_col.between?(0, 7)
+
+      piece_at_new_pos = board[new_row][new_col]
+      return true if (piece_at_new_pos.nil? || piece_at_new_pos.color != color) && safe_move?(new_row, new_col, board)
+    end
+    false
+  end
 
   def valid_king_move?(start, destination)
     row_diff = (destination[0] - start[0]).abs
