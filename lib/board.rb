@@ -100,7 +100,7 @@ class Board
   def move_piece(move) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
     if ["O-O", "O-O-O"].include?(move.chomp.upcase)
       castle = move.chomp.upcase
-      puts "im here"
+
       if castle(castle)
         puts "successful castling"
         @turn += 1
@@ -109,6 +109,11 @@ class Board
         puts "Invalid castling"
       end
 
+      return
+    end
+
+    unless move.match?(/^\d{2} \d{2}$/)
+      puts "Invalid input format"
       return
     end
 
