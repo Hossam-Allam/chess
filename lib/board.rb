@@ -126,9 +126,10 @@ class Board
       puts "Move puts your own king in check. Invalid move."
       return
     end
-
-    # Move the piece if everything is valid
-    @board[coordinates[1][0]][coordinates[1][1]] = piece
+    puts coordinates[0][0]
+    puts piece.class
+    pawn_upgrade(coordinates, color) if ((coordinates[1][0]).zero? || coordinates[1][0] == 7) && piece.is_a?(Pawn)
+    # @board[coordinates[1][0]][coordinates[1][1]] = piece
     potential_king = @board[coordinates[1][0]][coordinates[1][1]]
     if potential_king.instance_of?(King)
       if potential_king.color == "white"
@@ -157,5 +158,30 @@ class Board
 
     @turn += 1
     display
+  end
+
+  def pawn_upgrade(coordinates, color) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
+    puts "Your pawn has reached the end of the board, please enter you wish to have"
+    valid = false
+    until valid
+      piece = gets.chomp.downcase
+
+      case piece
+      when "knight"
+        @board[coordinates[1][0]][coordinates[1][1]] = Knight.new(color)
+        valid = true
+      when "bishop"
+        @board[coordinates[1][0]][coordinates[1][1]] = Bishop.new(color)
+        valid = true
+      when "queen"
+        @board[coordinates[1][0]][coordinates[1][1]] = Queen.new(color)
+        valid = true
+      when "rook"
+        @board[coordinates[1][0]][coordinates[1][1]] = Rook.new(color)
+        valid = true
+      else
+        puts "incorrect input, please choose between: knight, bishop, queen, rook"
+      end
+    end
   end
 end
