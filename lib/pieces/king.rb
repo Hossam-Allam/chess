@@ -46,6 +46,7 @@ class King
   end
 
   def tie?(board)
+    return true if two_kings?(board)
     return false if check?(board)
     return false if any_piece_can_move?(board)
     return false if king_can_move?(board)
@@ -54,6 +55,15 @@ class King
   end
 
   private
+
+  def two_kings?(board)
+    white_pieces = find_pieces_of_color("white", board)
+    black_pieces = find_pieces_of_color("black", board)
+
+    return true if white_pieces.size == 1 && black_pieces.size == 1
+
+    false
+  end
 
   def any_piece_can_move?(board) # rubocop:disable Metrics/MethodLength
     player_pieces = find_pieces_of_color(color, board)
