@@ -98,6 +98,20 @@ class Board
   end
 
   def move_piece(move) # rubocop:disable Metrics/AbcSize,Metrics/MethodLength,Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+    if ["O-O", "O-O-O"].include?(move.chomp.upcase)
+      castle = move.chomp.upcase
+      puts "im here"
+      if castle(castle)
+        puts "successful castling"
+        @turn += 1
+        display
+      else
+        puts "Invalid castling"
+      end
+
+      return
+    end
+
     coordinates = parse_coordinates(move)
     color = whose_turn
     piece = @board[coordinates[0][0]][coordinates[0][1]]
@@ -135,9 +149,11 @@ class Board
       if potential_king.color == "white"
         @white_king = potential_king
         @white_king.location = [coordinates[1][0], coordinates[1][1]]
+        @white_king.is_first_move = false
       else
         @black_king = potential_king
         @black_king.location = [coordinates[1][0], coordinates[1][1]]
+        @black_king.is_first_move = false
       end
     end
 
@@ -183,5 +199,50 @@ class Board
         puts "incorrect input, please choose between: knight, bishop, queen, rook"
       end
     end
+  end
+
+  def castle(move)
+    king = whose_turn == "white" ? @white_king : @black_king
+    row = whose_turn == "white" ? 7 : 0
+    king_col = 4
+    rook_col = move == "O-O" ? 7 : 0
+    new_king_col = move == "O-O" ? 6 : 2
+    new_rook_col = move == "O-O" ? 5 : 3
+
+    # Check if castling is allowed: king and rook haven't moved, no pieces in between, not in check
+    return false unless king.is_first_move && @board[row][rook_col].is_a?(Rook) && @board[row][rook_col].is_first_move
+    return false unless path_clear_for_castling?(row, king_col, rook_col)
+    return false if king.check?(@board) || king_would_be_in_check?(king, row, king_col, new_king_col)
+
+    # Move king and rook
+    @board[row][new_king_col] = king
+    @board[row][new_rook_col] = @board[row][rook_col]
+    @board[row][king_col] = nil
+    @board[row][rook_col] = nil
+
+    # Update king and rook positions
+    king.location = [row, new_king_col]
+    @board[row][new_rook_col].is_first_move = false
+    king.is_first_move = false
+
+    true
+  end
+
+  def path_clear_for_castling?(row, king_col, rook_col)
+    range = king_col < rook_col ? (king_col + 1...rook_col) : (rook_col + 1...king_col)
+    range.all? { |col| @board[row][col].nil? }
+  end
+
+  def king_would_be_in_check?(king, row, king_col, new_king_col)
+    return true if king.check?(@board)
+
+    # Simulate each intermediate position
+    (king_col..new_king_col).each do |col|
+      temp_board = @board.dup
+      temp_board[row][col] = king
+      return true if king.check?(temp_board)
+    end
+
+    false
   end
 end
