@@ -2,7 +2,10 @@
 
 This is a command-line chess game built using Ruby. The game allows two players to compete against each other by taking turns to move pieces according to chess rules. The game includes features like check, checkmate, castling, and more. The gui utilizes ASCII characters to display the chess pieces.
 
-![Chess board](images/chess_board.png)
+<div align="center">
+    <img src="images/chess_board.png" alt="Chess board" width="500"/>
+</div>
+
 
 
 ## Features
