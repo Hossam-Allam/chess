@@ -2,11 +2,12 @@ require_relative "pawn"
 # Rook class
 class Rook
   include MoveMapper
-  attr_accessor :symbol, :color
+  attr_accessor :symbol, :color, :is_first_move
 
   def initialize(color)
     @color = color
     @symbol = color == "black" ? "♖" : "♜"
+    @is_first_move = true
   end
 
   def move(coordinates, board)

@@ -3,12 +3,13 @@ require_relative "pawn"
 class King
   include MoveMapper
   attr_reader :symbol, :color
-  attr_accessor :location
+  attr_accessor :location, :is_first_move
 
   def initialize(color)
     @color = color
     @symbol = color == "black" ? "♔" : "♚"
     @location = color == "black" ? [0, 4] : [7, 4]
+    @is_first_move = true
   end
 
   def move(coordinates, board)
