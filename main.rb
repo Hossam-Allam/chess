@@ -4,6 +4,7 @@ require "colorize"
 game = Board.new
 
 game.display
+puts "Type 'help' for a game guide or type 'exit' to exit the game"
 
 input = gets.chomp!
 def help
